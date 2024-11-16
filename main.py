@@ -100,6 +100,8 @@ async def on_article(msg: Message, state: FSMContext):
         await msg.answer("Артикул не может содержать никаких символов кроме цифр.")
         return
 
+    state.set_state(None)
+
     data["article"] = article
     await state.set_data(data)
 
