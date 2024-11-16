@@ -27,39 +27,39 @@ async def on_start(msg: types.Message, state: FSMContext):
     log(f"/start on user {msg.from_user.first_name}.")
 
     await msg.answer(text="Привет!\nЭтот бот следит за ценами на маркетплейсах и уведомляет об их изменении.")
-    await display_menu(msg, state)
+    await display_menu(msg.from_user.id, state)
 
-async def display_menu(msg: types.Message, state: FSMContext):
+async def display_menu(chat_id: int, state: FSMContext):
     log("Displaying menu.")
 
-    kb = menu.MAIN_MENU_KB    
-    await msg.answer("Меню :D", reply_markup=kb)
+    kb = menu.MAIN_MENU_KB
+    await bot.send_message(chat_id, "Меню :D", reply_markup=kb)
 
-async def add_product(msg: types.Message, state: FSMContext):
+async def add_product(chat_id: int, state: FSMContext):
     log("Adding a new product")
-    await ask_article(msg, state)
+    await ask_article(chat_id, state)
 
 @dp.callback_query(F.data == "add_product")
 async def add_product_on_query(query: CallbackQuery, state: FSMContext):
-    await ask_article(query.message, state)
+    await add_product(query.from_user.id)
 
 @dp.message(Command("add"))
 async def add_product_message(msg: Message, state: FSMContext):
-    await list_products(msg, state)
+    await list_products(msg.from_user.id, state)
 
 async def list_products(chat_id: int, state: FSMContext):
     log("Listing all the products")
     text, kb = await menu.list_products(chat_id, state)
 
-    await msg.answer(text, reply_markup=kb)
+    await bot.send_message(chat_id, text, reply_markup=kb)
 
 @dp.message(Command("list"))
 async def list_products_command(msg: Message, state: FSMContext):
-    await list_products(msg, state)
+    await list_products(msg.from_user.id, state)
 
 @dp.callback_query(F.data == "list_products")
 async def list_products_on_query(query: CallbackQuery, state: FSMContext):
-    await list_products(query.message, state)
+    await list_products(query.from_user.id, state)
 
 @dp.callback_query(F.data.startswith("product_selected"))
 async def product_selected(query: CallbackQuery, state: FSMContext):
@@ -86,9 +86,9 @@ async def product_controls(query: CallbackQuery, state: FSMContext):
     msg, kb = await menu.list_products(query.from_user.id, state)
     await query.message.edit_reply_markup(reply_markup=kb)
 
-async def ask_article(msg: Message, state: FSMContext):
+async def ask_article(chat_id: int, state: FSMContext):
     await state.set_state("article")
-    await msg.answer("Введите артикул товара:")
+    await bot.send_message(chat_id, "Введите артикул товара:")
 
 @dp.message(StateFilter("article"))
 async def on_article(msg: Message, state: FSMContext):
@@ -103,10 +103,10 @@ async def on_article(msg: Message, state: FSMContext):
     data["article"] = article
     await state.set_data(data)
 
-    await ask_platform(msg, state)
+    await ask_platform(msg.from_user.id, state)
 
-async def ask_platform(msg: Message, state: FSMContext):
-    await msg.answer("Выберите платформу товара:", reply_markup=menu.PLATFORM_MENU_KB)
+async def ask_platform(chat_id: int, state: FSMContext):
+    await bot.send_message(chat_id, "Выберите платформу товара", reply_markup=menu.PLATFORM_MENU_KB)
 
 @dp.callback_query(F.data.startswith("platform"))
 async def on_platform(query: CallbackQuery, state: FSMContext):
