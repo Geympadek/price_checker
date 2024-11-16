@@ -1,6 +1,5 @@
 from aiogram import types
 
-import labels
 from loader import database
 
 import config
@@ -9,8 +8,8 @@ from math import ceil
 
 from aiogram.fsm.context import FSMContext
 
-LIST_PRODUCTS_BTN = types.InlineKeyboardButton(text=labels.LIST_PRODUCTS, callback_data="list_products")
-ADD_PRODUCT_BTN = types.InlineKeyboardButton(text=labels.ADD_PRODUCTS, callback_data="add_product")
+LIST_PRODUCTS_BTN = types.InlineKeyboardButton(text="Список товаров", callback_data="list_products")
+ADD_PRODUCT_BTN = types.InlineKeyboardButton(text="Добавить товар", callback_data="add_product")
 
 MAIN_MENU_KB = types.InlineKeyboardMarkup(inline_keyboard=[[LIST_PRODUCTS_BTN, ADD_PRODUCT_BTN]])
 

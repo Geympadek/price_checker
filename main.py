@@ -10,7 +10,6 @@ from aiogram.filters import Command, StateFilter
 from aiogram import F
 
 import menu
-import labels
 import update
 
 import config
@@ -27,14 +26,14 @@ async def on_startup():
 async def on_start(msg: types.Message, state: FSMContext):
     log(f"/start on user {msg.from_user.first_name}.")
 
-    await msg.answer(text=labels.START_MSG)
+    await msg.answer(text="Привет!\nЭтот бот следит за ценами на маркетплейсах и уведомляет об их изменении.")
     await display_menu(msg, state)
 
 async def display_menu(msg: types.Message, state: FSMContext):
     log("Displaying menu.")
 
     kb = menu.MAIN_MENU_KB    
-    await msg.answer(labels.MENU_TEXT, reply_markup=kb)
+    await msg.answer("Меню :D", reply_markup=kb)
 
 async def add_product(msg: types.Message, state: FSMContext):
     log("Adding a new product")
@@ -89,7 +88,7 @@ async def product_controls(query: CallbackQuery, state: FSMContext):
 
 async def ask_article(msg: Message, state: FSMContext):
     await state.set_state("article")
-    await msg.answer(labels.ARTICLE_ASK)
+    await msg.answer("Введите артикул товара:")
 
 @dp.message(StateFilter("article"))
 async def on_article(msg: Message, state: FSMContext):
