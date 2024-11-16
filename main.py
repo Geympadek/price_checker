@@ -41,7 +41,7 @@ async def add_product(chat_id: int, state: FSMContext):
 
 @dp.callback_query(F.data == "add_product")
 async def add_product_on_query(query: CallbackQuery, state: FSMContext):
-    await add_product(query.from_user.id)
+    await add_product(query.from_user.id, state)
 
 @dp.message(Command("add"))
 async def add_product_message(msg: Message, state: FSMContext):
@@ -117,7 +117,7 @@ async def on_platform(query: CallbackQuery, state: FSMContext):
 
     name = database.read("products", {"id": product_id})["name"]
 
-    query.message.answer(f'Товар "{name}" успешно добавлен.')
+    bot.send_message(query.from_user.id, f'Товар "{name}" успешно добавлен.')
 
 async def main():
     event_loop = asyncio.get_event_loop()
