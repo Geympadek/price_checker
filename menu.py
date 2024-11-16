@@ -1,12 +1,13 @@
 from aiogram import types
-
-from loader import database
-
-import config
-
+from aiogram.fsm.context import FSMContext
 from math import ceil
 
-from aiogram.fsm.context import FSMContext
+from loader import database
+import config
+import products
+
+TO_MENU_BTN = types.InlineKeyboardButton(text="Назад", callback_data="menu")
+TO_MENU_KB = types.InlineKeyboardMarkup(inline_keyboard=[[TO_MENU_BTN]])
 
 LIST_PRODUCTS_BTN = types.InlineKeyboardButton(text="Список товаров", callback_data="list_products")
 ADD_PRODUCT_BTN = types.InlineKeyboardButton(text="Добавить товар", callback_data="add_product")
@@ -57,7 +58,7 @@ async def list_products(user_id: int, state: FSMContext):
             name = product["name"]
             btns.append([types.InlineKeyboardButton(
                 text=name,
-                callback_data=f"product_selected:{product_id}"
+                callback_data=f"product_selected:{fol_product['id']}"
             )])
         
         controls = list_controls("products_controls", followed_count, page, max_page)
@@ -67,3 +68,25 @@ async def list_products(user_id: int, state: FSMContext):
     await state.set_data(usr_data)
 
     return msg, types.InlineKeyboardMarkup(inline_keyboard=btns)
+
+def product_menu(fol_product_id: int):
+    fol_product = database.read("followed_products", {"id": fol_product_id})[0]
+    product_id = fol_product["product_id"]
+    product = database.read("products", {"id": product_id})[0]
+
+    name = product["name"]
+    article = product["article"]
+    platform = products.platform_from_id(product["platform_id"])
+
+    price = products.last_price(product_id)
+
+    text = f'Название: "{name}"'\
+            f'\nПлатформа: "{platform}"'\
+            f'\nАртикул: {article}'\
+            f'\nТекущая цена: {price / 100} ₽'
+    
+    btns = []
+    btns.append(TO_MENU_BTN)
+    btns.append(types.InlineKeyboardButton(text="Перестать отслеживать", callback_data=f"remove_product:{fol_product_id}"))
+
+    return text, types.InlineKeyboardMarkup(inline_keyboard=[btns])
