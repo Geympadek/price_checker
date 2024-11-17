@@ -137,6 +137,11 @@ async def on_platform(query: CallbackQuery, state: FSMContext):
     platform = query.data.split(":", 1)[1]
     data = await state.get_data()
     product_id = await products.create_product(data["article"], platform)
+
+    if not product_id:
+        await bot.send_message(query.from_user.id, "При загрузке товара произошла ошибка. Перепроверьте данные и попробуйте снова. Если проблема продолжиться, обратитесь к <a href=\"https://t.me/eellauu\">разработчику</a>.", reply_markup=menu.TO_MENU_KB)
+        return
+
     products.follow_product(query.from_user.id, product_id)
 
     name = database.read("products", {"id": product_id})[0]["name"]

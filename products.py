@@ -50,9 +50,17 @@ async def create_product(article: int, platform: str):
     product = database.read("products", filters={"platform_id": plaform_id, "article": article})
 
     if product:
-        return product[0]["id"]
+        return int(product[0]["id"])
     
     name = await load_name(article, platform)
+    
+    if not name:
+        return None
+    
+    price = await load_price(article, platform)
+
+    if not price:
+        return None
 
     data = {
         "platform_id": plaform_id,
@@ -61,12 +69,8 @@ async def create_product(article: int, platform: str):
         "last_followed": int(time())
     }
     database.create("products", data)
-
-    price = await load_price(article, platform)
     product = database.read("products", filters={"platform_id": plaform_id, "article": article})
-
     product_id = int(product[0]["id"])
-
     insert_price(product_id, price)
     return product_id
 
@@ -75,4 +79,4 @@ def follow_product(user_id: int, product_id: int):
 
 def is_followed(product_id: int):
     follows = database.read("followed_products", {"product_id": product_id})
-    return follows and len(follows) != 0
+    return len(follows) != 0

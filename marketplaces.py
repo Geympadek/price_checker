@@ -34,7 +34,6 @@ def load_name_wb(id: int):
 
 def init_webdriver():
     options = Options()
-    options = Options()
 
     # run browser without opening a new window
     options.add_argument("--headless")
@@ -43,8 +42,8 @@ def init_webdriver():
     options.add_argument("--disable-gpu-compositing")
     # suppresses SSL errors 
     options.add_argument("--ignore-certificate-errors")
-
-    options.add_argument("--log-level=OFF") # disable console output
+    # disable console output
+    options.add_argument("--log-level=OFF")
     
     # prevents browser from playing audio
     options.add_argument("--mute-audio")
@@ -87,9 +86,7 @@ def price_from_spans(priceSpans):
         price_span = priceSpans[1]
     elif count == 2:
         price_span = priceSpans[0]
-    else:
-        raise SyntaxError(f"Number of price span is {count}, unexpected.")
-    return parse_price(price_span)
+    return parse_price(price_span) if price_span else None
 
 async def load_price_ozon(id: int):
     html = await load_html_ozon(id)
@@ -97,14 +94,16 @@ async def load_price_ozon(id: int):
     price_div = html.find('div', {"data-widget": "webPrice"})
     price_spans = price_div.find_all('span', string=lambda text: text and '₽' in text)
 
-    return price_from_spans(price_spans) * 100
+    price = price_from_spans(price_spans)
+
+    return price * 100 if price else None
 
 async def load_name_ozon(id: int):
     html = await load_html_ozon(id)
 
     name_header = html.find("h1")
     if not name_header:
-        raise LookupError("Unable to find the main header.")
+        return None
 
     return clean_name(name_header.text)
 
@@ -117,8 +116,8 @@ async def load_price(id: int, platform: str):
     if platform == "ozon":
         return await load_price_ozon(id)
 
-def load_name(id: int, platform: str):
+async def load_name(id: int, platform: str):
     if platform == "wildberries":
         return load_name_wb(id)
     if platform == "ozon":
-        return load_name_ozon(id)
+        return await load_name_ozon(id)
