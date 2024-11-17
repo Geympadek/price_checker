@@ -67,11 +67,7 @@ async def list_products_command(msg: Message, state: FSMContext):
 async def list_products_on_query(query: CallbackQuery, state: FSMContext):
     await list_products(query.from_user.id, state)
 
-@dp.callback_query(F.data.startswith("product_selected"))
-async def product_selected(query: CallbackQuery, state: FSMContext):
-    log("Product selected.")
-    fol_product_id = int(query.data.split(':', 1)[1])
-
+async def product_menu(user_id: int, fol_product_id: int, state: FSMContext):
     txt, kb = menu.product_menu(fol_product_id)
     fol_product = database.read("followed_products", {"id": fol_product_id})[0]
 
@@ -79,13 +75,19 @@ async def product_selected(query: CallbackQuery, state: FSMContext):
         graph_path = f"tmp/{fol_product_id}.png"
         graph.generate(fol_product["product_id"], graph_path)
         
-        await bot.send_photo(query.from_user.id, photo=types.FSInputFile(graph_path))
+        await bot.send_photo(user_id, photo=types.FSInputFile(graph_path))
         
         os.remove(graph_path)
     except:
         pass
+    await bot.send_message(user_id, txt, reply_markup=kb)
 
-    await bot.send_message(query.from_user.id, txt, reply_markup=kb)
+@dp.callback_query(F.data.startswith("product_selected"))
+async def product_selected(query: CallbackQuery, state: FSMContext):
+    log("Product selected.")
+    fol_product_id = int(query.data.split(':', 1)[1])
+
+    await product_menu(query.from_user.id, fol_product_id, state)
 
 @dp.callback_query(F.data.startswith("products_controls"))
 async def product_controls(query: CallbackQuery, state: FSMContext):
@@ -143,10 +145,12 @@ async def on_platform(query: CallbackQuery, state: FSMContext):
         return
 
     products.follow_product(query.from_user.id, product_id)
+    fol_product = database.read("followed_products", {"user_id": query.from_user.id, "product_id": product_id})[0]
 
     name = database.read("products", {"id": product_id})[0]["name"]
 
     await bot.send_message(query.from_user.id, f'Товар "{name}" успешно добавлен.')
+    await product_menu(query.from_user.id, fol_product["id"], state)
 
 @dp.callback_query(F.data.startswith("remove_product"))
 async def on_remove_product(query: CallbackQuery, state: FSMContext):

@@ -29,7 +29,19 @@ def list_controls(callback_name: str, items_count = 0, page = 0, max_page = 1, p
     btns.append(types.InlineKeyboardButton(text=">", callback_data=f"{callback_name}:right"))
 
     return btns
+
+def create_product_btn(fol_product, text = None):
+    product_id = fol_product["product_id"]
+
+    if not text:
+        product = database.read("products", filters={"id": product_id})[0]
+        text = product["name"]
     
+    return types.InlineKeyboardButton(
+        text=text,
+        callback_data=f"product_selected:{fol_product['id']}"
+    )
+
 async def list_products(user_id: int, state: FSMContext):
     usr_data = await state.get_data()
 
@@ -52,14 +64,7 @@ async def list_products(user_id: int, state: FSMContext):
         end_index = start_index + config.ITEMS_PER_PAGE
 
         for fol_product in fol_products[start_index:end_index]:
-            product_id = fol_product["product_id"]
-            product = database.read("products", filters={"id": product_id})[0]
-
-            name = product["name"]
-            btns.append([types.InlineKeyboardButton(
-                text=name,
-                callback_data=f"product_selected:{fol_product['id']}"
-            )])
+            btns.append([create_product_btn(fol_product)])
         
         controls = list_controls("products_controls", followed_count, page, max_page)
         if controls:
