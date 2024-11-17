@@ -1,36 +1,8 @@
-import requests
 from loader import database
 
 from time import time
 
-def load_price(id: int, platform: str):
-    '''
-    Get product's price
-    '''
-    if platform == "wildberries":
-        url = f"https://card.wb.ru/cards/v2/detail?appType=1&curr=rub&dest=-971647&spp=30&ab_testing=false&nm={id}"
-        
-        try:
-            data = requests.get(url).json()
-            products = data["data"]["products"]
-            
-            price = products[0]["sizes"][0]["price"]["total"]
-            return int(price)
-        except:
-            return None
-
-def load_name(id: int, platform: str):
-    if platform == "wildberries":
-        url = f"https://card.wb.ru/cards/v2/detail?appType=1&curr=rub&dest=-971647&spp=30&ab_testing=false&nm={id}"
-        data = requests.get(url).json()
-
-        products = data["data"]["products"]
-
-        if len(products) == 0:
-            return None
-        
-        name = products[0]["name"]
-        return name
+from marketplaces import load_name, load_price
 
 def platform_to_id(name: str):
     entry = database.read("platforms", filters={"name": name})[0]
@@ -69,7 +41,7 @@ def last_price(product_id: int):
 
     return last_price["price"]
 
-def create_product(article: int, platform: str):
+async def create_product(article: int, platform: str):
     '''
     Creates a new product inside of the db if one doesn't exist yet
     \nReturns id of the product in db
@@ -80,15 +52,27 @@ def create_product(article: int, platform: str):
     if product:
         return product[0]["id"]
     
-    name = load_name(article, platform)
+    name = await load_name(article, platform)
 
     data = {
         "platform_id": plaform_id,
         "article": article,
-        "name": name
+        "name": name,
+        "last_followed": int(time())
     }
     database.create("products", data)
-    return create_product(article, platform)
+
+    price = await load_price(article, platform)
+    product = database.read("products", filters={"platform_id": plaform_id, "article": article})
+
+    product_id = int(product[0]["id"])
+
+    insert_price(product_id, price)
+    return product_id
 
 def follow_product(user_id: int, product_id: int):
     database.create("followed_products", {"user_id": user_id, "product_id": product_id})
+
+def is_followed(product_id: int):
+    follows = database.read("followed_products", {"product_id": product_id})
+    return follows and len(follows) != 0

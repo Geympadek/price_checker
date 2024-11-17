@@ -81,9 +81,9 @@ def product_menu(fol_product_id: int):
     price = products.last_price(product_id)
 
     text = f'Название: "{name}"'\
-            f'\nПлатформа: "{platform}"'\
-            f'\nАртикул: {article}'\
-            f'\nТекущая цена: {price / 100} ₽'
+            f'\nПлатформа: {platform}'\
+            f'\nАртикул: <code>{article}</code>'\
+            f'\nТекущая цена: {price / 100}₽'
     
     btns = []
     btns.append(TO_MENU_BTN)

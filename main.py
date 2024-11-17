@@ -11,6 +11,9 @@ from aiogram import F
 
 import menu
 import update
+import graph
+
+import os
 
 import config
 
@@ -70,6 +73,18 @@ async def product_selected(query: CallbackQuery, state: FSMContext):
     fol_product_id = int(query.data.split(':', 1)[1])
 
     txt, kb = menu.product_menu(fol_product_id)
+    fol_product = database.read("followed_products", {"id": fol_product_id})[0]
+
+    try:
+        graph_path = f"tmp/{fol_product_id}.png"
+        graph.generate(fol_product["product_id"], graph_path)
+        
+        await bot.send_photo(query.from_user.id, photo=types.FSInputFile(graph_path))
+        
+        os.remove(graph_path)
+    except:
+        pass
+
     await bot.send_message(query.from_user.id, txt, reply_markup=kb)
 
 @dp.callback_query(F.data.startswith("products_controls"))
@@ -107,7 +122,7 @@ async def on_article(msg: Message, state: FSMContext):
         await msg.answer("Артикул не может содержать никаких символов кроме цифр.")
         return
 
-    state.set_state(None)
+    await state.set_state(None)
 
     data["article"] = article
     await state.set_data(data)
@@ -121,7 +136,7 @@ async def ask_platform(chat_id: int, state: FSMContext):
 async def on_platform(query: CallbackQuery, state: FSMContext):
     platform = query.data.split(":", 1)[1]
     data = await state.get_data()
-    product_id = products.create_product(data["article"], platform)
+    product_id = await products.create_product(data["article"], platform)
     products.follow_product(query.from_user.id, product_id)
 
     name = database.read("products", {"id": product_id})[0]["name"]
