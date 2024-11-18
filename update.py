@@ -1,17 +1,26 @@
-from time import sleep
+from time import time
 import asyncio
 
 from loader import database, bot
 import marketplaces
 import products
 from log import log
-from config import UPDATE_RATE
+from config import UPDATE_RATE, PRODUCT_LIFETIME
 
 async def update():
     followed_products = database.read("followed_products")
 
     for fol_product in followed_products:
         await check_price(fol_product)
+    
+    update_time = int(time())
+    products = database.read("products")
+    for product in products:
+        update_follow_time(product["id"], update_time)
+    # must do separate loops `products` become invalid after update_follow_time
+    products = database.read("products")
+    for product in products:
+        remove_if_old(product, update_time)
 
 async def check_price(fol_product: dict):
     product_id = fol_product["product_id"]
@@ -41,6 +50,14 @@ async def check_price(fol_product: dict):
                 msg += f"повысилась на {(price - last_price) / 100} ₽"
 
             await bot.send_message(chat_id=fol_product["user_id"], text=msg)
+
+def update_follow_time(product_id: int, update_time: int):
+    if products.is_followed(product_id):
+        database.update("products", {"last_followed": update_time}, {"id": product_id})
+
+def remove_if_old(product: dict, update_time: int):
+    if update_time - int(product["last_followed"]) > PRODUCT_LIFETIME:
+        products.delete_product_info(product["id"])
 
 async def loop():
     while True:

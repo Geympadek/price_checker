@@ -78,3 +78,9 @@ def follow_product(user_id: int, product_id: int):
 def is_followed(product_id: int):
     follows = database.read("followed_products", {"product_id": product_id})
     return len(follows) != 0
+
+# deletes any data about a product (including it's price and follows)
+def delete_product_info(product_id: int):
+    database.delete("products", {"id": product_id})
+    database.delete("prices", {"product_id": product_id})
+    database.delete("followed_products", {"product_id": product_id})
