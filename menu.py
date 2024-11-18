@@ -51,7 +51,7 @@ async def list_products(user_id: int, state: FSMContext):
 
     msg = ""
     btns = []
-    if not fol_products or followed_count == 0:
+    if followed_count == 0:
         msg = "Список отслеживаемых товаров пуст."
         btns.append([ADD_PRODUCT_BTN])
     else:
@@ -92,10 +92,10 @@ def product_menu(fol_product_id: int):
     
     link = ""
     if platform == "wildberries":
-        link = "https://www.wildberries.ru/catalog/"
+        link = f"https://www.wildberries.ru/catalog/{article}/detail.aspx"
     elif platform == "ozon":
-        link = "https://www.ozon.ru/product/"
+        link = f"https://www.ozon.ru/product/{article}"
 
-    buy_btn = types.InlineKeyboardButton(text="Купить", url=link + str(article))
+    buy_btn = types.InlineKeyboardButton(text="Купить", url=link)
     remove_btn = types.InlineKeyboardButton(text="Перестать отслеживать", callback_data=f"remove_product:{fol_product_id}")
     return text, types.InlineKeyboardMarkup(inline_keyboard=[[buy_btn], [TO_MENU_BTN, remove_btn]])
