@@ -21,11 +21,13 @@ async def check_price(fol_product: dict):
     article = int(product["article"])
 
     last_price = products.last_price(product_id)
-    price = await marketplaces.load_price(article, products.platform_from_id(platform_id))
+    info = await marketplaces.load_info(article, products.platform_from_id(platform_id))
 
-    if not price:
-        log(f"Unable to get the price of '{product['name']}'")
+    if not info:
+        log(f"Unable to get info about '{product['name']}'")
         return
+
+    price = info["price"]
 
     if price != last_price:
         # if price has changed, write the change to the database

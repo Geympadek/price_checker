@@ -2,7 +2,7 @@ from loader import database
 
 from time import time
 
-from marketplaces import load_name, load_price
+import marketplaces
 
 def platform_to_id(name: str):
     entry = database.read("platforms", filters={"name": name})[0]
@@ -52,15 +52,13 @@ async def create_product(article: int, platform: str):
     if product:
         return int(product[0]["id"])
     
-    name = await load_name(article, platform)
+    info = await marketplaces.load_info(article, platform)
     
-    if not name:
+    if not info:
         return None
     
-    price = await load_price(article, platform)
-
-    if not price:
-        return None
+    name = info["name"]
+    price = info["price"]
 
     data = {
         "platform_id": plaform_id,
