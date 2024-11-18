@@ -1,6 +1,8 @@
 from time import time
 import asyncio
+from aiogram import types
 
+import menu
 from loader import database, bot
 import marketplaces
 import products
@@ -48,8 +50,11 @@ async def check_price(fol_product: dict):
                 msg += f"снизилась на {(last_price - price) / 100} ₽"
             else:
                 msg += f"повысилась на {(price - last_price) / 100} ₽"
-
-            await bot.send_message(chat_id=fol_product["user_id"], text=msg)
+            
+            kb = types.InlineKeyboardMarkup(inline_keyboard=[[
+                menu.TO_MENU_BTN, menu.create_product_btn(fol_product, "Товар")
+            ]])
+            await bot.send_message(chat_id=fol_product["user_id"], text=msg, reply_markup=kb)
 
 def update_follow_time(product_id: int, update_time: int):
     if products.is_followed(product_id):
