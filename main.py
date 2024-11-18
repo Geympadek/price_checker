@@ -55,6 +55,14 @@ async def add_product_message(msg: Message, state: FSMContext):
 
 async def list_products(chat_id: int, state: FSMContext):
     log("Listing all the products")
+
+    user_data = await state.get_data()
+    if user_data.get("products_page"):
+        del user_data["products_page"]
+        del user_data["products_pages_count"]
+    
+    await state.set_data(user_data)
+
     text, kb = await menu.list_products(chat_id, state)
 
     await bot.send_message(chat_id, text, reply_markup=kb)
