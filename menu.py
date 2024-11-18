@@ -90,8 +90,12 @@ def product_menu(fol_product_id: int):
             f'\nАртикул: <code>{article}</code>'\
             f'\nТекущая цена: {price / 100}₽'
     
-    btns = []
-    btns.append(TO_MENU_BTN)
-    btns.append(types.InlineKeyboardButton(text="Перестать отслеживать", callback_data=f"remove_product:{fol_product_id}"))
+    link = ""
+    if platform == "wildberries":
+        link = "https://www.wildberries.ru/catalog/"
+    elif platform == "ozon":
+        link = "https://www.ozon.ru/product/"
 
-    return text, types.InlineKeyboardMarkup(inline_keyboard=[btns])
+    buy_btn = types.InlineKeyboardButton(text="Купить", url=link + str(article))
+    remove_btn = types.InlineKeyboardButton(text="Перестать отслеживать", callback_data=f"remove_product:{fol_product_id}")
+    return text, types.InlineKeyboardMarkup(inline_keyboard=[[buy_btn], [TO_MENU_BTN, remove_btn]])
