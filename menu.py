@@ -6,16 +6,16 @@ from loader import database
 import config
 import products
 
-TO_MENU_BTN = types.InlineKeyboardButton(text="Назад", callback_data="menu")
+TO_MENU_BTN = types.InlineKeyboardButton(text="⬅️ Назад", callback_data="menu")
 TO_MENU_KB = types.InlineKeyboardMarkup(inline_keyboard=[[TO_MENU_BTN]])
 
-LIST_PRODUCTS_BTN = types.InlineKeyboardButton(text="Список товаров", callback_data="list_products")
-ADD_PRODUCT_BTN = types.InlineKeyboardButton(text="Добавить товар", callback_data="add_product")
+LIST_PRODUCTS_BTN = types.InlineKeyboardButton(text="📋 Товары", callback_data="list_products")
+ADD_PRODUCT_BTN = types.InlineKeyboardButton(text="➕ Добавить", callback_data="add_product")
 
 MAIN_MENU_KB = types.InlineKeyboardMarkup(inline_keyboard=[[LIST_PRODUCTS_BTN, ADD_PRODUCT_BTN]])
 
-OZON_BTN = types.InlineKeyboardButton(text="Ozon", callback_data="platform:ozon")
-WB_BTN = types.InlineKeyboardButton(text="Wildberries", callback_data="platform:wildberries")
+WB_BTN = types.InlineKeyboardButton(text="🟣Wildberries", callback_data="platform:wildberries")
+OZON_BTN = types.InlineKeyboardButton(text="🔵Ozon", callback_data="platform:ozon")
 
 PLATFORM_MENU_KB = types.InlineKeyboardMarkup(inline_keyboard=[[WB_BTN, OZON_BTN]])
 
@@ -24,9 +24,9 @@ def list_controls(callback_name: str, items_count = 0, page = 0, max_page = 1, p
         return None
     
     btns = []
-    btns.append(types.InlineKeyboardButton(text="<", callback_data=f"{callback_name}:left"))
+    btns.append(types.InlineKeyboardButton(text="<b>&lt;</b>", callback_data=f"{callback_name}:left"))
     btns.append(types.InlineKeyboardButton(text=f"{page + 1}/{max_page}", callback_data=" "))
-    btns.append(types.InlineKeyboardButton(text=">", callback_data=f"{callback_name}:right"))
+    btns.append(types.InlineKeyboardButton(text="<b>&mt;</b>", callback_data=f"{callback_name}:right"))
 
     return btns
 
@@ -85,8 +85,8 @@ def product_menu(fol_product_id: int):
 
     price = products.last_price(product_id)
 
-    text = f'Название: "{name}"'\
-            f'\nПлатформа: {platform}'\
+    text = f'<b>{name}</b>'\
+            f'\n\nПлатформа: {platform}'\
             f'\nАртикул: <code>{article}</code>'\
             f'\nТекущая цена: {price / 100}₽'
     
@@ -96,6 +96,6 @@ def product_menu(fol_product_id: int):
     elif platform == "ozon":
         link = f"https://www.ozon.ru/product/{article}"
 
-    buy_btn = types.InlineKeyboardButton(text="Купить", url=link)
-    remove_btn = types.InlineKeyboardButton(text="Перестать отслеживать", callback_data=f"remove_product:{fol_product_id}")
+    buy_btn = types.InlineKeyboardButton(text="🛒 Купить", url=link)
+    remove_btn = types.InlineKeyboardButton(text="❌ Удалить", callback_data=f"remove_product:{fol_product_id}")
     return text, types.InlineKeyboardMarkup(inline_keyboard=[[buy_btn], [TO_MENU_BTN, remove_btn]])

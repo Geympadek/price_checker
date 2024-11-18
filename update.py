@@ -7,9 +7,12 @@ from loader import database, bot
 import marketplaces
 import products
 from log import log
-from config import UPDATE_RATE, PRODUCT_LIFETIME
+from config import UPDATE_RATE, PRODUCT_LIFETIME, DISABLE_UPDATE
 
 async def update():
+    if DISABLE_UPDATE:
+        return
+
     followed_products = database.read("followed_products")
 
     for fol_product in followed_products:
@@ -47,12 +50,12 @@ async def check_price(fol_product: dict):
         if last_price:
             msg = f'Цена на "{product["name"]}" '
             if price < last_price:
-                msg += f"снизилась на {(last_price - price) / 100} ₽"
+                msg += f"снизилась на {(last_price - price) / 100} ₽ 📉"
             else:
-                msg += f"повысилась на {(price - last_price) / 100} ₽"
+                msg += f"повысилась на {(price - last_price) / 100} ₽ 📈"
             
             kb = types.InlineKeyboardMarkup(inline_keyboard=[[
-                menu.TO_MENU_BTN, menu.create_product_btn(fol_product, "Товар")
+                menu.TO_MENU_BTN, menu.create_product_btn(fol_product, "🛍️ Товар")
             ]])
             await bot.send_message(chat_id=fol_product["user_id"], text=msg, reply_markup=kb)
 

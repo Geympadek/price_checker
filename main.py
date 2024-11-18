@@ -29,13 +29,13 @@ async def on_startup():
 async def on_start(msg: types.Message, state: FSMContext):
     log(f"/start on user {msg.from_user.first_name}.")
 
-    await msg.answer(text="Привет!\nЭтот бот следит за ценами на маркетплейсах и уведомляет об их изменении.")
+    await msg.answer(text="👋 Привет!\nЭтот бот следит за ценами товаров на маркетплейсах и уведомляет об их изменении.")
     await display_menu(msg.from_user.id, state)
 
 async def display_menu(chat_id: int, state: FSMContext):
     log("Displaying menu.")
 
-    await bot.send_message(chat_id, "Меню :D", reply_markup=menu.MAIN_MENU_KB)
+    await bot.send_message(chat_id, "🧭 Навигация", reply_markup=menu.MAIN_MENU_KB)
 
 @dp.callback_query(F.data == "menu")
 async def on_menu(query: CallbackQuery, state: FSMContext):
@@ -120,7 +120,7 @@ async def product_controls(query: CallbackQuery, state: FSMContext):
 
 async def ask_article(chat_id: int, state: FSMContext):
     await state.set_state("article")
-    await bot.send_message(chat_id, "Введите артикул товара:")
+    await bot.send_message(chat_id, "🆔 Введите артикул товара:")
 
 @dp.message(StateFilter("article"))
 async def on_article(msg: Message, state: FSMContext):
@@ -140,7 +140,7 @@ async def on_article(msg: Message, state: FSMContext):
     await ask_platform(msg.from_user.id, state)
 
 async def ask_platform(chat_id: int, state: FSMContext):
-    await bot.send_message(chat_id, "Выберите платформу товара", reply_markup=menu.PLATFORM_MENU_KB)
+    await bot.send_message(chat_id, "🏛️ Выберите платформу товара", reply_markup=menu.PLATFORM_MENU_KB)
 
 @dp.callback_query(F.data.startswith("platform"))
 async def on_platform(query: CallbackQuery, state: FSMContext):
@@ -157,7 +157,7 @@ async def on_platform(query: CallbackQuery, state: FSMContext):
 
     name = database.read("products", {"id": product_id})[0]["name"]
 
-    await bot.send_message(query.from_user.id, f'Товар "{name}" успешно добавлен.')
+    await bot.send_message(query.from_user.id, f'➕ Товар "{name}" успешно добавлен.')
     await product_menu(query.from_user.id, fol_product["id"], state)
 
 @dp.callback_query(F.data.startswith("remove_product"))
@@ -166,7 +166,7 @@ async def on_remove_product(query: CallbackQuery, state: FSMContext):
     fol_product_id = int(query.data.split(':', 1)[1])
     database.delete("followed_products", {"id": fol_product_id})
 
-    await bot.send_message(query.from_user.id, "Товар больше не отслеживаеся.", reply_markup=menu.TO_MENU_KB)
+    await bot.send_message(query.from_user.id, "➖ Товар больше не отслеживаеся.", reply_markup=menu.TO_MENU_KB)
 
 async def main():
     event_loop = asyncio.get_event_loop()
