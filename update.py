@@ -10,6 +10,9 @@ from log import log
 from config import UPDATE_RATE, PRODUCT_LIFETIME, DISABLE_UPDATE
 
 async def update():
+    '''
+    Update the system one time
+    '''
     if DISABLE_UPDATE:
         return
 
@@ -28,6 +31,9 @@ async def update():
         remove_if_old(product, update_time)
 
 async def check_price(fol_product: dict):
+    '''
+    Loads product's price, push it to the db and send notification if it's different
+    '''
     product_id = fol_product["product_id"]
     product = database.read("products", filters={"id": product_id})[0]
     platform_id = product["platform_id"]
@@ -45,7 +51,7 @@ async def check_price(fol_product: dict):
 
     if price != last_price:
         # if price has changed, write the change to the database
-        products.insert_price(product_id, price)
+        products.push_price(product_id, price)
 
         if last_price:
             msg = f'Цена на "{product["name"]}" '
@@ -60,6 +66,10 @@ async def check_price(fol_product: dict):
             await bot.send_message(chat_id=fol_product["user_id"], text=msg, reply_markup=kb)
 
 def update_follow_time(product_id: int, update_time: int):
+    '''
+    Update last follow time of a product
+    \n`update_time` - if product is followed, sets it's `follow_time` to `update_time`
+    '''
     if products.is_followed(product_id):
         log(f"Updated follow time of product {product_id}")
         database.update("products", {"last_followed": update_time}, {"id": product_id})
@@ -67,11 +77,18 @@ def update_follow_time(product_id: int, update_time: int):
         log(f"Product {product_id} is not followed, skip time updating")
 
 def remove_if_old(product: dict, update_time: int):
+    '''
+    Deletes all of the info about the product if it was followed more than `config.PRODUCT_LIFETIME` seconds last time
+    \n`update_time` - time used as current time
+    '''
     if update_time - int(product["last_followed"]) > PRODUCT_LIFETIME:
         log(f"Product {product['id']} is too old, deleting all info about it")
         products.delete_product_info(product["id"])
 
 async def loop():
+    '''
+    Infinite loop that updates all the info every `config.UPDATE_RATE` seconds
+    '''
     while True:
         await update()
         await asyncio.sleep(UPDATE_RATE)

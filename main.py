@@ -42,6 +42,9 @@ async def on_menu(data, state: FSMContext):
     await display_menu(data.from_user.id, state)
 
 async def add_product(chat_id: int, state: FSMContext):
+    '''
+    Starts the process of adding a new product to the database (or following it if one already exists)
+    '''
     log("Adding a new product")
     await ask_article(chat_id, state)
 
@@ -51,6 +54,9 @@ async def on_add_product(data, state: FSMContext):
     await add_product(data.from_user.id, state)
 
 async def list_products(chat_id: int, state: FSMContext):
+    '''
+    Displays all followed products as a list. Uses controls buttons, if the list is longer than `config.ITEMS_PER_PAGE`
+    '''
     log("Listing all the products")
 
     user_data = await state.get_data()
@@ -71,7 +77,10 @@ async def on_list_products(data, state: FSMContext):
 
 @dp.message(Command("feedback"))
 async def on_feedback(data, state: FSMContext):
-    await bot.send_message(data.from_user.id, f"Оставьте отзыв или сообщите об ошибке напрямую <a href=\"{CONTACT_LINK}\">разработчику</a>.", reply_markup=menu.TO_MENU_KB)
+    await feedback(data.from_user.id)
+
+async def feedback(chat_id: int, state: FSMContext):
+    await bot.send_message(chat_id, f"Оставьте отзыв или сообщите об ошибке напрямую <a href=\"{CONTACT_LINK}\">разработчику</a>.", reply_markup=menu.TO_MENU_KB)
 
 async def product_menu(user_id: int, fol_product_id: int, state: FSMContext):
     txt, kb = menu.product_menu(fol_product_id)
@@ -117,6 +126,9 @@ async def product_controls(query: CallbackQuery, state: FSMContext):
     await query.message.edit_reply_markup(reply_markup=kb)
 
 async def ask_article(chat_id: int, state: FSMContext):
+    '''
+    Prompt the user to enter article
+    '''
     await state.set_state("article")
 
     kb = types.InlineKeyboardMarkup(inline_keyboard=[[menu.create_info_btn("article")]])

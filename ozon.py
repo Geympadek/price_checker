@@ -11,6 +11,9 @@ import asyncio
 import os
 
 def init_webdriver():
+    '''
+    Creates a new driver for scraping
+    '''
     options = Options()
 
     # run browser without opening a new window
@@ -43,6 +46,9 @@ def init_webdriver():
 driver = init_webdriver()
 
 def set_location(loc: tuple[int, int]):
+    '''
+    Sets `driver`'s location to `loc`
+    '''
     driver.execute_cdp_cmd("Emulation.setGeolocationOverride", {
         "latitude": loc[0],
         "longitude": loc[1],
@@ -50,6 +56,9 @@ def set_location(loc: tuple[int, int]):
     })
 
 def enable_cdp_blocking():
+    '''
+    Starts blocking all the resources to speed up loading
+    '''
     # Enable Chrome DevTools Protocol (CDP) for blocking resources
     driver.execute_cdp_cmd("Network.enable", {})
     
@@ -66,6 +75,9 @@ def enable_cdp_blocking():
     )
 
 async def load_html(link: str):
+    '''
+    Returns source code of the page after it bypassed bot detection
+    '''
     driver.get(link)
     
     await wait_antibot()
@@ -74,19 +86,34 @@ async def load_html(link: str):
     return raw_html
 
 async def wait_antibot():
+    '''
+    Sleeps until it has successfully bypassed bot detection
+    '''
     while "Antibot" in driver.title:
         await asyncio.sleep(0.1)
 
 def get_source():
+    '''
+    returns the source code of the current page
+    '''
     return BeautifulSoup(driver.page_source, "html.parser")
 
 def clean_name(name: str):
+    '''
+    Removes all the spaces and new line characters to clean up the name
+    '''
     return re.sub(r"\s+", " ", name).strip()
 
-def parse_price(price_span):
+def parse_price(price_span: NavigableString):
+    '''
+    Parses given span into a number
+    '''
     return int("".join([c if c.isdigit() else "" for c in price_span.text]))
 
 def price_from_spans(priceSpans):
+    '''
+    Finds the right span from `priceSpans` and returns it's parsed form
+    '''
     count = len(priceSpans)
     
     price_span = None
@@ -97,6 +124,9 @@ def price_from_spans(priceSpans):
     return parse_price(price_span) if price_span else None
 
 def get_name(html: BeautifulSoup):
+    '''
+    Finds the name of the product on a page
+    '''
     name_header = html.find("h1")
     if not name_header:
         return None
@@ -104,6 +134,9 @@ def get_name(html: BeautifulSoup):
     return clean_name(name_header.text)
 
 def get_price(html: BeautifulSoup):
+    '''
+    Returns the price of a product from html page
+    '''
     price_div = html.find('div', {"data-widget": "webPrice"})
     price_spans = price_div.find_all('span', string=lambda text: text and '₽' in text)
 
@@ -111,8 +144,8 @@ def get_price(html: BeautifulSoup):
 
 async def wait_location():
     '''
-    Finds a button, responsible for user's location
-    returns btn if found, returns None, if user
+    Waits for the button, responsible for user's location, to appear
+    \nreturns btn if found, returns `None`, if user's location doesn't need to be changed
     '''
     while True:
         try:
@@ -125,6 +158,9 @@ async def wait_location():
         await asyncio.sleep(0.1)
 
 async def wait_location_change():
+    '''
+    Waits for the price to change according to the new location
+    '''
     while True:
         try:
             return driver.find_element(By.XPATH, "//h1[contains(., 'доставк')]")
@@ -132,10 +168,13 @@ async def wait_location_change():
         await asyncio.sleep(0.1)
 
 async def load_info(id: int, location: tuple[float, float] | None = None):
+    '''
+    returns price and name of the product from it's article
+    '''
     if location:
         set_location(location)
     
-    # driver.delete_all_cookies()
+    driver.delete_all_cookies()
     enable_cdp_blocking()
 
     html = await load_html(f"https://ozon.ru/product/{id}")
