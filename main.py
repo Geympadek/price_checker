@@ -1,4 +1,3 @@
-import loader
 from loader import dp, bot, database
 
 import asyncio
@@ -15,8 +14,6 @@ import graph
 
 import os
 
-import config
-
 import products
 
 from log import log
@@ -29,7 +26,7 @@ async def on_startup():
 async def on_start(msg: types.Message, state: FSMContext):
     log(f"/start on user {msg.from_user.first_name}.")
 
-    await msg.answer(text="👋 Привет!\nЭтот бот следит за ценами товаров на маркетплейсах и уведомляет об их изменении.")
+    await msg.answer(text="👋 Привет!\nЭтот бот следит за ценами на маркетплейсах и уведомляет об их изменении.\n\nНажмите <code>Добавить</code> или используйте команду <code>/add</code> чтобы начать отслеживать.")
     await display_menu(msg.from_user.id, state)
 
 async def display_menu(chat_id: int, state: FSMContext):
@@ -38,20 +35,18 @@ async def display_menu(chat_id: int, state: FSMContext):
     await bot.send_message(chat_id, "🧭 Навигация", reply_markup=menu.MAIN_MENU_KB)
 
 @dp.callback_query(F.data == "menu")
-async def on_menu(query: CallbackQuery, state: FSMContext):
-    await display_menu(query.from_user.id, state)
+@dp.message(Command("menu"))
+async def on_menu(data, state: FSMContext):
+    await display_menu(data.from_user.id, state)
 
 async def add_product(chat_id: int, state: FSMContext):
     log("Adding a new product")
     await ask_article(chat_id, state)
 
 @dp.callback_query(F.data == "add_product")
-async def add_product_on_query(query: CallbackQuery, state: FSMContext):
-    await add_product(query.from_user.id, state)
-
 @dp.message(Command("add"))
-async def add_product_message(msg: Message, state: FSMContext):
-    await add_product(msg.from_user.id, state)
+async def on_add_product(data, state: FSMContext):
+    await add_product(data.from_user.id, state)
 
 async def list_products(chat_id: int, state: FSMContext):
     log("Listing all the products")
@@ -68,12 +63,9 @@ async def list_products(chat_id: int, state: FSMContext):
     await bot.send_message(chat_id, text, reply_markup=kb)
 
 @dp.message(Command("list"))
-async def list_products_command(msg: Message, state: FSMContext):
-    await list_products(msg.from_user.id, state)
-
 @dp.callback_query(F.data == "list_products")
-async def list_products_on_query(query: CallbackQuery, state: FSMContext):
-    await list_products(query.from_user.id, state)
+async def on_list_products(data, state: FSMContext):
+    await list_products(data.from_user.id, state)
 
 async def product_menu(user_id: int, fol_product_id: int, state: FSMContext):
     txt, kb = menu.product_menu(fol_product_id)
@@ -120,7 +112,10 @@ async def product_controls(query: CallbackQuery, state: FSMContext):
 
 async def ask_article(chat_id: int, state: FSMContext):
     await state.set_state("article")
-    await bot.send_message(chat_id, "🆔 Введите артикул товара:")
+
+    kb = types.InlineKeyboardMarkup(inline_keyboard=[[menu.create_info_btn("article")]])
+
+    await bot.send_message(chat_id, "🆔 Отправьте артикул товара:", reply_markup=kb)
 
 @dp.message(StateFilter("article"))
 async def on_article(msg: Message, state: FSMContext):
@@ -159,6 +154,12 @@ async def on_platform(query: CallbackQuery, state: FSMContext):
 
     await bot.send_message(query.from_user.id, f'➕ Товар "{name}" успешно добавлен.')
     await product_menu(query.from_user.id, fol_product["id"], state)
+
+@dp.callback_query(F.data == "info:article")
+async def about_article(query: CallbackQuery, state: FSMContext):
+    user_id = query.from_user.id
+
+    await bot.send_message(user_id, "Артикул товара - это уникальный буквенно-цифровой код, который присвоен каждому товару.\n\n<b>Где найти?</b>\n1. Зайдите на страницу товара.\n2. Откройте <code>Характеристики</code>\n3. Скопируйте <code>Артикул</code>")
 
 @dp.callback_query(F.data.startswith("remove_product"))
 async def on_remove_product(query: CallbackQuery, state: FSMContext):

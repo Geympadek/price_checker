@@ -42,6 +42,12 @@ def create_product_btn(fol_product, text = None):
         callback_data=f"product_selected:{fol_product['id']}"
     )
 
+def create_info_btn(data: str):
+    return types.InlineKeyboardButton(
+        text="❔",
+        callback_data=f"info:{data}"
+    )
+
 async def list_products(user_id: int, state: FSMContext):
     usr_data = await state.get_data()
 
