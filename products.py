@@ -28,7 +28,7 @@ def last_price(product_id: int):
     '''
     prices = database.read("prices", filters={"product_id": product_id})
     
-    if not prices:
+    if not len(prices):
         return None
 
     last_date = 0

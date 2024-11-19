@@ -134,31 +134,22 @@ async def wait_location_change():
 async def load_info(id: int, location: tuple[float, float] | None = None):
     if location:
         set_location(location)
-        print("Set location to ", location)
     
     # driver.delete_all_cookies()
-    print('Delete all cookies')
-
     enable_cdp_blocking()
 
     html = await load_html(f"https://ozon.ru/product/{id}")
-    print("load the page")
 
     name = get_name(html)
     if not name:
         return None
 
     if location:
-        print("waiting for the button to appear")
         change_btn = await wait_location()
         if change_btn:
-            print("Emit click")
             change_btn.click()
 
-            print("waiting for the location to change")
             await wait_location_change()
-        else:
-            print("Location doesn't need to be changed")
 
     price = get_price(html)
     if not price:

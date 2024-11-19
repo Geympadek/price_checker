@@ -61,10 +61,14 @@ async def check_price(fol_product: dict):
 
 def update_follow_time(product_id: int, update_time: int):
     if products.is_followed(product_id):
+        log(f"Updated follow time of product {product_id}")
         database.update("products", {"last_followed": update_time}, {"id": product_id})
+    else:
+        log(f"Product {product_id} is not followed, skip time updating")
 
 def remove_if_old(product: dict, update_time: int):
     if update_time - int(product["last_followed"]) > PRODUCT_LIFETIME:
+        log(f"Product {product['id']} is too old, deleting all info about it")
         products.delete_product_info(product["id"])
 
 async def loop():

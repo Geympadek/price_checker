@@ -55,7 +55,7 @@ class Database:
         
         self.connection.commit()
 
-    def read(self, table: str, filters: dict = None, logic: str = "AND") -> list[dict] | None:
+    def read(self, table: str, filters: dict = None, logic: str = "AND") -> list[dict]:
         '''
         Returns data as a dictionary. If filters can't be satisfied, returns `None`
         \n`filters` - if not null, returns every entry, that satisfies filter, else returns the whole table
