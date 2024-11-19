@@ -12,6 +12,8 @@ import menu
 import update
 import graph
 
+from config import CONTACT_LINK
+
 import os
 
 import products
@@ -66,6 +68,10 @@ async def list_products(chat_id: int, state: FSMContext):
 @dp.callback_query(F.data == "list_products")
 async def on_list_products(data, state: FSMContext):
     await list_products(data.from_user.id, state)
+
+@dp.message(Command("feedback"))
+async def on_feedback(data, state: FSMContext):
+    await bot.send_message(data.from_user.id, f"Оставьте отзыв или сообщите об ошибке напрямую <a href=\"{CONTACT_LINK}\">разработчику</a>.", reply_markup=menu.TO_MENU_KB)
 
 async def product_menu(user_id: int, fol_product_id: int, state: FSMContext):
     txt, kb = menu.product_menu(fol_product_id)
@@ -144,7 +150,7 @@ async def on_platform(query: CallbackQuery, state: FSMContext):
     product_id = await products.create_product(data["article"], platform)
 
     if not product_id:
-        await bot.send_message(query.from_user.id, "При загрузке товара произошла ошибка. Перепроверьте данные и попробуйте снова. Если проблема продолжиться, обратитесь к <a href=\"https://t.me/eellauu\">разработчику</a>.", reply_markup=menu.TO_MENU_KB)
+        await bot.send_message(query.from_user.id, f"При загрузке товара произошла ошибка. Перепроверьте данные и попробуйте снова. Если проблема продолжиться, обратитесь к <a href=\"{CONTACT_LINK}\">разработчику</a>.", reply_markup=menu.TO_MENU_KB)
         return
 
     products.follow_product(query.from_user.id, product_id)
