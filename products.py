@@ -40,7 +40,7 @@ def last_price(product_id: int) -> None | int:
     if not len(prices):
         return None
 
-    last_price = max(prices, key=lambda price: price["price"])
+    last_price = max(prices, key=lambda price: price["date"])
     return last_price["price"]
 
 async def create_product(article: int, platform: str):
