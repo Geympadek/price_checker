@@ -12,12 +12,17 @@ TO_MENU_KB = types.InlineKeyboardMarkup(inline_keyboard=[[TO_MENU_BTN]])
 LIST_PRODUCTS_BTN = types.InlineKeyboardButton(text="📋 Товары", callback_data="list_products")
 ADD_PRODUCT_BTN = types.InlineKeyboardButton(text="➕ Добавить", callback_data="add_product")
 
-MAIN_MENU_KB = types.InlineKeyboardMarkup(inline_keyboard=[[LIST_PRODUCTS_BTN, ADD_PRODUCT_BTN]])
+FEEDBACK_BTN = types.InlineKeyboardButton(text="💬 Написать нам", callback_data="feedback")
 
 WB_BTN = types.InlineKeyboardButton(text="🟣Wildberries", callback_data="platform:wildberries")
 OZON_BTN = types.InlineKeyboardButton(text="🔵Ozon", callback_data="platform:ozon")
 
 PLATFORM_MENU_KB = types.InlineKeyboardMarkup(inline_keyboard=[[WB_BTN, OZON_BTN]])
+
+MAIN_MENU_KB = types.InlineKeyboardMarkup(inline_keyboard=[
+    [LIST_PRODUCTS_BTN],
+    [ADD_PRODUCT_BTN, FEEDBACK_BTN]
+])
 
 def list_controls(callback_name: str, items_count = 0, page = 0, max_page = 1, page_size = config.ITEMS_PER_PAGE):
     if items_count <= page_size:
