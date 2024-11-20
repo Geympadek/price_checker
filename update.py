@@ -54,11 +54,11 @@ async def check_price(fol_product: dict):
 
     if price != last_price:
         if last_price:
-            msg = f'Цена на "{product["name"]}" '
+            msg = f'Цена на <b>{product["name"]}</b> '
             if price < last_price:
-                msg += f"снизилась на {(last_price - price) / 100} ₽ 📉"
+                msg += f"снизилась на {last_price - price} ₽ 📉"
             else:
-                msg += f"повысилась на {(price - last_price) / 100} ₽ 📈"
+                msg += f"повысилась на {price - last_price} ₽ 📈"
             
             kb = types.InlineKeyboardMarkup(inline_keyboard=[[
                 menu.TO_MENU_BTN, menu.create_product_btn(fol_product, "🛍️ Товар")

@@ -194,7 +194,7 @@ async def load_info(id: int, location: tuple[float, float] | None = None):
     if not price:
         return None
 
-    return {"name": name, "price": price * 100}
+    return {"name": name, "price": price}
 
 # async def main():
     

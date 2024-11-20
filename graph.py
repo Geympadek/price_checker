@@ -22,7 +22,7 @@ def plot_from_list(price_entries: list[dict], color="blue"):
         date = int(entry["date"])
 
         dates.append(date)
-        prices.append(int(entry["price"]) / 100)
+        prices.append(int(entry["price"]))
     
     pyplot.plot(dates, prices, marker = 'o', color=color)
 

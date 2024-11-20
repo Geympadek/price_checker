@@ -126,7 +126,7 @@ def product_menu(fol_product_id: int):
     text = f'<b>{name}</b>'\
             f'\n\nПлатформа: {platform}'\
             f'\nАртикул: <code>{article}</code>'\
-            f'\nТекущая цена: {price / 100}₽'
+            f'\nТекущая цена: {price} ₽'
     
     link = ""
     if platform == "wildberries":
