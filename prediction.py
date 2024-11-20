@@ -11,12 +11,24 @@ from math import floor
 import graph
 
 def find_old_price(prices: list[dict]):
+    '''
+    Returns the oldest date in the list
+    '''
     return min(prices, key=lambda price: int(price["date"]))
 
 def find_new_price(prices: list[dict]):
+    '''
+    Returns the newest date in the list
+    '''
     return max(prices, key=lambda price: int(price["date"]))
 
 def closest_prices(prices: list[dict], point_date: int):
+    '''
+    Finds the closest price entries to the `point_date` and returns them
+    \n`prices` - price entries from the database
+    \n`point_date` - date in seconds
+    \n`return` closest_older, closest_newer 
+    '''
     closest_older = None
     closest_newer = None
     min_delta_older = float('inf')
@@ -35,7 +47,17 @@ def closest_prices(prices: list[dict], point_date: int):
 
     return closest_older, closest_newer
 
-def gen_inputs(product_id: int):
+def closest_prices(prices: list[dict], point_date: int):
+    for i, price in enumerate(prices):
+        date = price["date"]
+
+        if date > point_date:
+            return prices[i - 1], price
+            
+def normalize_prices(product_id: int):
+    '''
+    Normalizes info about prices, creating a list with an entry every `config.RNN_PRICE_PERIOD` seconds
+    '''
     prices = database.read("prices", {"product_id": product_id})
 
     old_price = find_old_price(prices)
@@ -56,11 +78,14 @@ def gen_inputs(product_id: int):
         inputs.append(appr_price)
     return inputs
 
-def data_to_prices(data: list, start_time: int):
+def prices_to_dict(predicted_prices: list, start_time: int):
+    '''
+    Takes prices, predicted in a list and converts them to `{"date": "price":}` format
+    '''
     prices = []
-    for el in data:
-        prices.append({"date": start_time + RNN_PRICE_PERIOD, "price": el})
+    for pred_price in predicted_prices:
+        prices.append({"date": start_time + RNN_PRICE_PERIOD, "price": pred_price})
         start_time += RNN_PRICE_PERIOD
     return prices
 
-graph.generate(6, "test.png", predictions=data_to_prices(gen_inputs(6), 1731763395))
+graph.generate(6, "test.png", predictions=prices_to_dict(normalize_prices(6), 1731763395))
