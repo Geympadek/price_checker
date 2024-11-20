@@ -40,7 +40,7 @@ def last_price(product_id: int) -> None | int:
     if not len(prices):
         return None
 
-    last_price = max(prices, lambda price: price["price"])
+    last_price = max(prices, key=lambda price: price["price"])
     return last_price["price"]
 
 async def create_product(article: int, platform: str):
@@ -94,3 +94,6 @@ def delete_product_info(product_id: int):
     database.delete("products", {"id": product_id})
     database.delete("prices", {"product_id": product_id})
     database.delete("followed_products", {"product_id": product_id})
+
+if __name__ == "__main__":
+    print(last_price(6))

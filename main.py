@@ -76,8 +76,9 @@ async def on_list_products(data, state: FSMContext):
     await list_products(data.from_user.id, state)
 
 @dp.message(Command("feedback"))
+@dp.callback_query(F.data == "feedback")
 async def on_feedback(data, state: FSMContext):
-    await feedback(data.from_user.id)
+    await feedback(data.from_user.id, state)
 
 async def feedback(chat_id: int, state: FSMContext):
     await bot.send_message(chat_id, f"Оставьте отзыв или сообщите об ошибке напрямую <a href=\"{CONTACT_LINK}\">разработчику</a>.", reply_markup=menu.TO_MENU_KB)
