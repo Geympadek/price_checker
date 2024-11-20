@@ -24,12 +24,11 @@ def push_price(product_id: int, price: int):
     '''
     Adds new price to the database with current time
     '''
-    data = {
+    database.create("prices", {
         "product_id": product_id,
         "price": price,
         "date": int(time())
-    }
-    database.create("prices", data)
+    })
 
 def last_price(product_id: int) -> None | int:
     '''
@@ -62,13 +61,12 @@ async def create_product(article: int, platform: str):
     name = info["name"]
     price = info["price"]
 
-    data = {
+    database.create("products", {
         "platform_id": plaform_id,
         "article": article,
         "name": name,
         "last_followed": int(time())
-    }
-    database.create("products", data)
+    })
     product = database.read("products", filters={"platform_id": plaform_id, "article": article})
     product_id = int(product[0]["id"])
     push_price(product_id, price)

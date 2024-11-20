@@ -28,7 +28,14 @@ async def on_startup():
 async def on_start(msg: types.Message, state: FSMContext):
     log(f"/start on user {msg.from_user.first_name}.")
 
-    await msg.answer(text="👋 Привет!\nЭтот бот следит за ценами на маркетплейсах и уведомляет об их изменении.\n\nНажмите <code>Добавить</code> или используйте команду <code>/add</code> чтобы начать отслеживать.")
+    if not database.read("users", {"id": msg.from_user.id}):
+        database.create("users", {"id": msg.from_user.id})
+
+    await msg.answer(text=
+        "👋 Привет!"
+        "\nЭтот бот следит за ценами на маркетплейсах и уведомляет об их изменении."
+        "\n\nНажмите <code>Добавить</code> или используйте команду <code>/add</code> чтобы начать отслеживать."
+    )
     await display_menu(msg.from_user.id, state)
 
 async def display_menu(chat_id: int, state: FSMContext):
@@ -81,7 +88,10 @@ async def on_feedback(data, state: FSMContext):
     await feedback(data.from_user.id, state)
 
 async def feedback(chat_id: int, state: FSMContext):
-    await bot.send_message(chat_id, f"Оставьте отзыв или сообщите об ошибке напрямую <a href=\"{CONTACT_LINK}\">разработчику</a>.", reply_markup=menu.TO_MENU_KB)
+    await bot.send_message(chat_id,
+        text=f"Оставьте отзыв или сообщите об ошибке напрямую <a href=\"{CONTACT_LINK}\">разработчику</a>.", 
+        reply_markup=menu.TO_MENU_KB
+    )
 
 async def product_menu(user_id: int, fol_product_id: int, state: FSMContext):
     txt, kb = menu.product_menu(fol_product_id)
@@ -94,7 +104,7 @@ async def product_menu(user_id: int, fol_product_id: int, state: FSMContext):
         await bot.send_photo(user_id, photo=types.FSInputFile(graph_path))
         
         os.remove(graph_path)
-    except:
+    except ValueError:
         pass
     await bot.send_message(user_id, txt, reply_markup=kb)
 
@@ -154,7 +164,10 @@ async def on_article(msg: Message, state: FSMContext):
     await ask_platform(msg.from_user.id, state)
 
 async def ask_platform(chat_id: int, state: FSMContext):
-    await bot.send_message(chat_id, "🏛️ Выберите платформу товара", reply_markup=menu.PLATFORM_MENU_KB)
+    await bot.send_message(chat_id,
+        "🏛️ Выберите платформу товара",
+        reply_markup=menu.PLATFORM_MENU_KB
+    )
 
 @dp.callback_query(F.data.startswith("platform"))
 async def on_platform(query: CallbackQuery, state: FSMContext):
@@ -163,7 +176,11 @@ async def on_platform(query: CallbackQuery, state: FSMContext):
     product_id = await products.create_product(data["article"], platform)
 
     if not product_id:
-        await bot.send_message(query.from_user.id, f"При загрузке товара произошла ошибка. Перепроверьте данные и попробуйте снова. Если проблема продолжиться, обратитесь к <a href=\"{CONTACT_LINK}\">разработчику</a>.", reply_markup=menu.TO_MENU_KB)
+        await bot.send_message(query.from_user.id,
+            "При загрузке товара произошла ошибка. Перепроверьте данные и попробуйте снова."
+            f"Если проблема продолжиться, обратитесь к <a href=\"{CONTACT_LINK}\">разработчику</a>.",
+            reply_markup=menu.TO_MENU_KB
+        )
         return
 
     products.follow_product(query.from_user.id, product_id)
@@ -176,9 +193,14 @@ async def on_platform(query: CallbackQuery, state: FSMContext):
 
 @dp.callback_query(F.data == "info:article")
 async def about_article(query: CallbackQuery, state: FSMContext):
-    user_id = query.from_user.id
-
-    await bot.send_message(user_id, "Артикул товара - это уникальный буквенно-цифровой код, который присвоен каждому товару.\n\n<b>Где найти?</b>\n1. Зайдите на страницу товара.\n2. Откройте <code>Характеристики</code>\n3. Скопируйте <code>Артикул</code>")
+    await bot.send_message(
+        chat_id=query.from_user.id,
+        text="Артикул товара - это уникальный буквенно-цифровой код, который присвоен каждому товару."
+        "\n\n<b>Где найти?</b>"
+        "\n1. Зайдите на страницу товара."
+        "\n2. Откройте <code>Характеристики</code>"
+        "\n3. Скопируйте <code>Артикул</code>"
+    )
 
 @dp.callback_query(F.data.startswith("remove_product"))
 async def on_remove_product(query: CallbackQuery, state: FSMContext):
@@ -186,7 +208,11 @@ async def on_remove_product(query: CallbackQuery, state: FSMContext):
     fol_product_id = int(query.data.split(':', 1)[1])
     database.delete("followed_products", {"id": fol_product_id})
 
-    await bot.send_message(query.from_user.id, "➖ Товар больше не отслеживаеся.", reply_markup=menu.TO_MENU_KB)
+    await bot.send_message(
+        query.from_user.id,
+        text="➖ Товар больше не отслеживаеся.",
+        reply_markup=menu.TO_MENU_KB
+    )
 
 async def main():
     event_loop = asyncio.get_event_loop()
