@@ -4,11 +4,13 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 
+from selenium.common.exceptions import NoSuchElementException
+
 from bs4 import BeautifulSoup, NavigableString
 import re
 import asyncio
 
-import os
+from time import time
 
 def init_webdriver():
     '''
@@ -150,11 +152,11 @@ async def wait_location():
     while True:
         try:
             return driver.find_element(By.XPATH, "//button[contains(., 'Сменить')]")
-        except: pass
+        except NoSuchElementException: pass
         try:
             driver.find_element(By.XPATH, "//button[contains(., 'Не сейчас')]")
             return None
-        except: pass
+        except NoSuchElementException: pass
         await asyncio.sleep(0.1)
 
 async def wait_location_change():
@@ -164,13 +166,10 @@ async def wait_location_change():
     while True:
         try:
             return driver.find_element(By.XPATH, "//h1[contains(., 'доставк')]")
-        except: pass
+        except NoSuchElementException: pass
         await asyncio.sleep(0.1)
 
-async def load_info(id: int, location: tuple[float, float] | None = None):
-    '''
-    returns price and name of the product from it's article
-    '''
+async def load_info_unsafe(id: int, location: tuple[float, float] | None):
     if location:
         set_location(location)
     
@@ -196,9 +195,22 @@ async def load_info(id: int, location: tuple[float, float] | None = None):
 
     return {"name": name, "price": price}
 
-# async def main():
+async def load_info(id: int, location: tuple[float, float] | None = None, max_dur: int = 10):
+    '''
+    returns price and name of the product from it's article
+    `id` - article of the product to be searched
+    `location` - this location will be set on the website if provided
+    `max_dur` - the limit of time for this function's execution
+    '''
+    start_time = time()
     
+    task = load_info_unsafe(id, location)
 
+    while task.cr_running:
+        if time() - start_time > max_dur:
+            return None
+    return await task
+# async def main():
 #     article = 27524240
 
 #     enable_cdp_blocking()
