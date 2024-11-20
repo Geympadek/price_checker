@@ -49,10 +49,10 @@ async def check_price(fol_product: dict):
 
     price = info["price"]
 
-    if price != last_price:
-        # if price has changed, write the change to the database
-        products.push_price(product_id, price)
+    #write the price regardless of the change
+    products.push_price(product_id, price)
 
+    if price != last_price:
         if last_price:
             msg = f'Цена на "{product["name"]}" '
             if price < last_price:
