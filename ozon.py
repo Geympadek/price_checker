@@ -12,6 +12,11 @@ import asyncio
 
 from time import time
 
+SLEEP_DUR = 0.1
+'''
+Sleep time in wait functions (seconds)
+'''
+
 def init_webdriver():
     '''
     Creates a new driver for scraping
@@ -157,7 +162,7 @@ async def wait_location():
             driver.find_element(By.XPATH, "//button[contains(., 'Не сейчас')]")
             return None
         except NoSuchElementException: pass
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(SLEEP_DUR)
 
 async def wait_location_change():
     '''
@@ -167,7 +172,7 @@ async def wait_location_change():
         try:
             return driver.find_element(By.XPATH, "//h1[contains(., 'доставк')]")
         except NoSuchElementException: pass
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(SLEEP_DUR)
 
 async def load_info_unsafe(id: int, location: tuple[float, float] | None):
     if location:
@@ -204,21 +209,19 @@ async def load_info(id: int, location: tuple[float, float] | None = None, max_du
     '''
     start_time = time()
     
-    task = load_info_unsafe(id, location)
+    task = asyncio.create_task(load_info_unsafe(id, location))
 
-    while task.cr_running:
+    while not task.done():
         if time() - start_time > max_dur:
+            task.cancel()
             return None
-    return await task
+        await asyncio.sleep(SLEEP_DUR)
+    return task.result()
+
 # async def main():
 #     article = 27524240
 
 #     enable_cdp_blocking()
-#     # preload for the future uses
-#     await load_html("https://www.ozon.ru/")
-
-#     # print(await load_info(article, (56.85423623447262, 53.242487506387455)))
 #     print(await load_info(article))
-#     await asyncio.sleep(120)
 
 # asyncio.run(main())
