@@ -7,12 +7,13 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import Command, StateFilter
 from aiogram import F
+from aiogram import exceptions
 
 import menu
 import update
 import graph
 
-from config import CONTACT_LINK
+from config import CONTACT_LINK, RECONNECT_TIME
 
 import os
 
@@ -218,7 +219,13 @@ async def main():
     event_loop = asyncio.get_event_loop()
     event_loop.create_task(update.loop())
     
-    await dp.start_polling(bot)
+    while True:
+        try:
+            await dp.start_polling(bot)
+        except exceptions.TelegramNetworkError:
+            print("Network error occured.")
+        print(f"Trying to reconnect... In {RECONNECT_TIME} seconds.")
+        await asyncio.sleep(RECONNECT_TIME)
 
 if __name__ == "__main__":
     asyncio.run(main())
