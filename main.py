@@ -90,7 +90,7 @@ async def on_feedback(data, state: FSMContext):
 
 async def feedback(chat_id: int, state: FSMContext):
     await bot.send_message(chat_id,
-        text=f"Оставьте отзыв или сообщите об ошибке напрямую <a href=\"{CONTACT_LINK}\">разработчику</a>.", 
+        text=f"Напишите о том, что можно добавить, или сообщите об ошибке <a href=\"{CONTACT_LINK}\">разработчику</a>.", 
         reply_markup=menu.TO_MENU_KB
     )
 
