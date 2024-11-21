@@ -1,15 +1,17 @@
 import requests
+import asyncio
 
-# async def get_async(url):
+def async_get(*args):
+    return asyncio.to_thread(requests.get, *args)
 
-def load_json(id: int):
+async def load_json(id: int) -> dict:
     url = f"https://card.wb.ru/cards/v2/detail?appType=1&curr=rub&dest=-971647&spp=30&ab_testing=false&nm={id}"
-    data = requests.get(url).json()
+    data = (await async_get(url)).json()
     return data["data"]["products"]
 
-def load_info(id: int):
+async def load_info(id: int):
     try:
-        products = load_json(id)
+        products = await load_json(id)
 
         name = products[0]["name"]
         
