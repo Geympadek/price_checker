@@ -37,9 +37,9 @@ def list_controls(callback_prefix: str, items_count = 0, page = 0, max_page = 1,
         return None
     
     btns = []
-    btns.append(types.InlineKeyboardButton(text="<b>&lt;</b>", callback_data=f"{callback_prefix}:left"))
+    btns.append(types.InlineKeyboardButton(text="<", callback_data=f"{callback_prefix}:left"))
     btns.append(types.InlineKeyboardButton(text=f"{page + 1}/{max_page}", callback_data=" "))
-    btns.append(types.InlineKeyboardButton(text="<b>&mt;</b>", callback_data=f"{callback_prefix}:right"))
+    btns.append(types.InlineKeyboardButton(text=">", callback_data=f"{callback_prefix}:right"))
 
     return btns
 
