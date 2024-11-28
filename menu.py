@@ -6,13 +6,13 @@ from loader import database
 import config
 import products
 
-TO_MENU_BTN = types.InlineKeyboardButton(text="⬅️ Назад", callback_data="menu")
+TO_MENU_BTN = types.InlineKeyboardButton(text="⬅️ Меню", callback_data="menu")
 TO_MENU_KB = types.InlineKeyboardMarkup(inline_keyboard=[[TO_MENU_BTN]])
 
 LIST_PRODUCTS_BTN = types.InlineKeyboardButton(text="📋 Товары", callback_data="list_products")
 ADD_PRODUCT_BTN = types.InlineKeyboardButton(text="➕ Добавить", callback_data="add_product")
 
-FEEDBACK_BTN = types.InlineKeyboardButton(text="💬 Написать нам", callback_data="feedback")
+FEEDBACK_BTN = types.InlineKeyboardButton(text="💬 Контакты", callback_data="feedback")
 
 WB_BTN = types.InlineKeyboardButton(text="🟣Wildberries", callback_data="platform:wildberries")
 OZON_BTN = types.InlineKeyboardButton(text="🔵Ozon", callback_data="platform:ozon")
