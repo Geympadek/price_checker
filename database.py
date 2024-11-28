@@ -7,7 +7,7 @@ def filters_to_query(filters: dict, logic="AND"):
     """
     query_filters = ""
 
-    if not filters:
+    if filters:
         filters_list = []
 
         for field, condition in filters.items():
@@ -16,7 +16,6 @@ def filters_to_query(filters: dict, logic="AND"):
 
         query_filters = "where " + f" {logic}".join(filters_list)
     return query_filters
-
 
 class Database:
     def __init__(self, path: str):
