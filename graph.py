@@ -1,3 +1,5 @@
+import os
+
 from matplotlib import pyplot
 from datetime import datetime
 
@@ -42,6 +44,11 @@ def generate(product_id: int, path: str, predictions: list[dict] = []):
 
     pyplot.gca().xaxis.set_major_formatter(date_format)
     pyplot.gca().xaxis.set_major_locator(ticker.MultipleLocator(3600 * 24))
+
+    directory = os.path.dirname(path)
+
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
     pyplot.savefig(path)
     pyplot.close()
