@@ -41,7 +41,6 @@ def init_webdriver():
     }
     options.add_experimental_option("prefs", prefs)
 
-    global driver
     driver = webdriver.Chrome(options=options)
 
     stealth(driver,
@@ -49,11 +48,10 @@ def init_webdriver():
             vendor="Google Inc.",
             webgl_vendor="Intel Inc.",
             renderer="Intel Iris OpenGL Engine")
+
     return driver
 
-driver = init_webdriver()
-
-def set_location(loc: tuple[int, int]):
+def set_location(loc: tuple[float, float]):
     """
     Sets `driver`'s location to `loc`
     """
@@ -223,6 +221,10 @@ async def load_info(id: int, location: tuple[float, float] | None = None, max_du
             return None
         await asyncio.sleep(SLEEP_DUR)
     return task.result()
+
+driver = init_webdriver()
+# Preload browser for more accurate results
+asyncio.run(load_html("https://ozon.ru/"))
 
 async def main():
     article = 27524240
