@@ -29,9 +29,6 @@ async def on_startup():
 async def on_start(msg: types.Message, state: FSMContext):
     log(f"/start on user {msg.from_user.first_name}.")
 
-    if not database.read("users", {"id": msg.from_user.id}):
-        database.create("users", {"id": msg.from_user.id})
-
     await msg.answer(text=
         "👋 Привет!"
         "\nЭтот бот следит за ценами на маркетплейсах и уведомляет об их изменении."

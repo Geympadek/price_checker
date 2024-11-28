@@ -14,8 +14,9 @@ def filters_to_query(filters: dict, logic="AND"):
             query = f'{field} = "{condition}"'
             filters_list.append(query)
 
-        query_filters = "where " + f" {logic}".join(filters_list)
+        query_filters = "where " + f" {logic} ".join(filters_list)
     return query_filters
+
 
 class Database:
     def __init__(self, path: str):
@@ -43,6 +44,24 @@ class Database:
 
         self.cursor.execute(f"INSERT INTO {table}({fields}) VALUES({marks})", values)
         self.connection.commit()
+
+    def setdefault(self, table: str, data: dict):
+        """
+        Creates a new entry in the database if one doesn't exist yet
+        Returns True if new entry created
+        """
+        try:
+            self.create(table, data)
+            return True
+        except sqlite3.IntegrityError:
+            return False
+
+    def create_read(self, table: str, data: dict):
+        """
+        Creates a new entry in the database and reads it
+        """
+        self.create(table, data)
+        return self.read(table, filters=data)[-1]
 
     def update(self, table: str, data: dict, filters: dict = None, logic: str = "AND"):
         """
