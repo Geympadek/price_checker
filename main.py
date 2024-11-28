@@ -63,7 +63,7 @@ async def on_add_product(data, state: FSMContext):
 
 async def list_products(chat_id: int, state: FSMContext):
     '''
-    Displays all followed products as a list. Uses controls buttons, if the list is longer than `config.ITEMS_PER_PAGE`
+    Displays all followed products as a list. Uses control buttons, if the list is longer than `config.ITEMS_PER_PAGE`
     '''
     log("Listing all the products")
 
@@ -218,14 +218,15 @@ async def on_remove_product(query: CallbackQuery, state: FSMContext):
 async def main():
     event_loop = asyncio.get_event_loop()
     event_loop.create_task(update.loop())
-    
+
     while True:
         try:
             await dp.start_polling(bot)
+            break
         except exceptions.TelegramNetworkError:
             print("Network error occured.")
-        print(f"Trying to reconnect... In {RECONNECT_TIME} seconds.")
-        await asyncio.sleep(RECONNECT_TIME)
+            print(f"Trying to reconnect... In {RECONNECT_TIME} seconds.")
+            await asyncio.sleep(RECONNECT_TIME)
 
 if __name__ == "__main__":
     asyncio.run(main())
