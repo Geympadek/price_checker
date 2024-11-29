@@ -12,10 +12,7 @@ import asyncio
 
 from time import time
 
-SLEEP_DUR = 0.1
-"""
-Sleep time in wait functions (seconds)
-"""
+from config import SLEEP_DUR, MAX_LOAD_TIME
 
 def init_webdriver():
     """
@@ -204,9 +201,9 @@ async def load_info_unsafe(id: int, location: tuple[float, float] | None):
 
     return {"name": name, "price": price}
 
-async def load_info(id: int, location: tuple[float, float] | None = None, max_dur: int = 10):
+async def load_info(id: int, location: tuple[float, float] | None = None):
     """
-    returns price and name of the product from it's article
+    returns price and name of the product from its article
     `id` - article of the product to be searched
     `location` - this location will be set on the website if provided
     `max_dur` - the limit of time for this function's execution
@@ -216,7 +213,7 @@ async def load_info(id: int, location: tuple[float, float] | None = None, max_du
     task = asyncio.create_task(load_info_unsafe(id, location))
 
     while not task.done():
-        if time() - start_time > max_dur:
+        if time() - start_time > MAX_LOAD_TIME:
             task.cancel()
             return None
         await asyncio.sleep(SLEEP_DUR)
