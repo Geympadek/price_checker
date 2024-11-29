@@ -25,14 +25,14 @@ MAIN_MENU_KB = types.InlineKeyboardMarkup(inline_keyboard=[
 ])
 
 def list_controls(callback_prefix: str, items_count = 0, page = 0, max_page = 1, page_size = config.ITEMS_PER_PAGE):
-    '''
+    """
     Creates control buttons at the bottom of a list so that it's possible to display more than `config.ITEMS_PER_PAGE` elements
     \n`callback_name` - prefix, that appears before all callback_data
     \n`items_count` - number of elements in the list
     \n`page` - current page index (starting from zero)
     \n`max_page` - number of pages
     \n`page_size` - size of a single page
-    '''
+    """
     if items_count <= page_size:
         return None
     
@@ -44,11 +44,11 @@ def list_controls(callback_prefix: str, items_count = 0, page = 0, max_page = 1,
     return btns
 
 def create_product_btn(fol_product: dict, text: str | None = None):
-    '''
+    """
     Returns a button that leads user to the followed product's page
     \n`fol_product` - followed_product from the database
     \n`text` - text displayed on the button. If null, displays the name of the product
-    '''
+    """
     product_id = fol_product["product_id"]
 
     if not text:
@@ -61,21 +61,21 @@ def create_product_btn(fol_product: dict, text: str | None = None):
     )
 
 def create_info_btn(data: str):
-    '''
+    """
     Creates a question button, with `callback_data` prefix - `"info:"`
-    '''
+    """
     return types.InlineKeyboardButton(
         text="❔",
         callback_data=f"info:{data}"
     )
 
 async def list_products(user_id: int, state: FSMContext):
-    '''
+    """
     Creates a list of all the of followed products by the user, if the size is bigger than `config.ITEMS_PER_PAGE`, adds navigation buttons  
     \n`user_id` - id of the user
     \n`state` - fsm state machine for getting and setting data (such as current page index)
     \n`return` - message and keyboard for sending
-    '''
+    """
     usr_data = await state.get_data()
 
     fol_products = database.read("followed_products", {"user_id": user_id})
@@ -108,11 +108,11 @@ async def list_products(user_id: int, state: FSMContext):
     return msg, types.InlineKeyboardMarkup(inline_keyboard=btns)
 
 def product_menu(fol_product_id: int):
-    '''
+    """
     Creates product's page
     `fol_product_id` - id of the followed_product
     `return` - msg and keyboard for sending
-    '''
+    """
     fol_product = database.read("followed_products", {"id": fol_product_id})[0]
     product_id = fol_product["product_id"]
     product = database.read("products", {"id": product_id})[0]
