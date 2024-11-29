@@ -89,9 +89,18 @@ async def on_feedback(data, state: FSMContext):
 
 async def feedback(chat_id: int, state: FSMContext):
     await bot.send_message(chat_id,
-        text=f"Напишите о том, что можно добавить, или сообщите об ошибке <a href=\"{CONTACT_LINK}\">разработчику</a>.", 
+        text=f"Напишите о том, как можно улучшить бота, или сообщите об ошибке <a href=\"{CONTACT_LINK}\">разработчику</a>.",
         reply_markup=menu.TO_MENU_KB
     )
+
+@dp.message(Command("cancel"))
+@dp.callback_query(F.data == "cancel")
+async def on_cancel(data, state: FSMContext):
+    await cancel(data.from_user.id, state)
+
+async def cancel(user_id: int, state: FSMContext):
+    await state.set_state(None)
+    await display_menu(user_id, state)
 
 async def product_menu(user_id: int, fol_product_id: int, state: FSMContext):
     txt, kb = menu.product_menu(fol_product_id)
@@ -142,7 +151,9 @@ async def ask_article(chat_id: int, state: FSMContext):
     '''
     await state.set_state("article")
 
-    kb = types.InlineKeyboardMarkup(inline_keyboard=[[menu.create_info_btn("article")]])
+    kb = types.InlineKeyboardMarkup(inline_keyboard=[
+        [menu.create_info_btn("article"), menu.CANCEL_BTN]
+    ])
 
     await bot.send_message(chat_id, "🆔 Отправьте артикул товара:", reply_markup=kb)
 
@@ -152,7 +163,7 @@ async def on_article(msg: Message, state: FSMContext):
 
     try:
         article = int(msg.text)
-    except:
+    except ValueError:
         await msg.answer("Артикул не может содержать никаких символов кроме цифр.")
         return
 

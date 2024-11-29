@@ -6,6 +6,9 @@ from loader import database
 import config
 import products
 
+CANCEL_BTN = types.InlineKeyboardButton(text="✖️ Отмена", callback_data="cancel")
+CANCEL_KB = types.InlineKeyboardMarkup(inline_keyboard=[[CANCEL_BTN]])
+
 TO_MENU_BTN = types.InlineKeyboardButton(text="⬅️ Меню", callback_data="menu")
 TO_MENU_KB = types.InlineKeyboardMarkup(inline_keyboard=[[TO_MENU_BTN]])
 
@@ -14,10 +17,10 @@ ADD_PRODUCT_BTN = types.InlineKeyboardButton(text="➕ Добавить", callba
 
 FEEDBACK_BTN = types.InlineKeyboardButton(text="💬 Контакты", callback_data="feedback")
 
-WB_BTN = types.InlineKeyboardButton(text="🟣Wildberries", callback_data="platform:wildberries")
-OZON_BTN = types.InlineKeyboardButton(text="🔵Ozon", callback_data="platform:ozon")
+WB_BTN = types.InlineKeyboardButton(text="🟣 Wildberries", callback_data="platform:wildberries")
+OZON_BTN = types.InlineKeyboardButton(text="🔵 Ozon", callback_data="platform:ozon")
 
-PLATFORM_MENU_KB = types.InlineKeyboardMarkup(inline_keyboard=[[WB_BTN, OZON_BTN]])
+PLATFORM_MENU_KB = types.InlineKeyboardMarkup(inline_keyboard=[[WB_BTN, OZON_BTN], [CANCEL_BTN]])
 
 MAIN_MENU_KB = types.InlineKeyboardMarkup(inline_keyboard=[
     [LIST_PRODUCTS_BTN],
