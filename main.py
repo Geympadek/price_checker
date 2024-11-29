@@ -65,7 +65,9 @@ async def list_products(chat_id: int, state: FSMContext):
     log("Listing all the products")
 
     user_data = await state.get_data()
-    if user_data.get("products_page"):
+
+    page = user_data.get("products_page")
+    if page is not None:
         del user_data["products_page"]
         del user_data["products_pages_count"]
     
