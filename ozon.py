@@ -227,7 +227,7 @@ driver = init_webdriver()
 asyncio.run(load_html("https://ozon.ru/"))
 
 async def main():
-    article = 27524240
+    article = 1583876229
 
     enable_cdp_blocking()
     print(await load_info(article))
