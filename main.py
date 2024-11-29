@@ -173,7 +173,14 @@ async def ask_platform(chat_id: int, state: FSMContext):
 async def on_platform(query: CallbackQuery, state: FSMContext):
     platform = query.data.split(":", 1)[1]
     data = await state.get_data()
+
+    msg = await bot.send_message(query.from_user.id,
+        "Загрузка информации о товаре, пожалуйста подождите..."
+    )
+
     product_id = await products.create_product(data["article"], platform)
+
+    await msg.delete()
 
     if not product_id:
         await bot.send_message(query.from_user.id,
